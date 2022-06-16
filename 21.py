@@ -36,7 +36,7 @@ def construct_tree(transactions_list):
     root = EmpNode(transactions_list[0])
     head = root
     for i in transactions_list[1:]:
-        while True 
+        while True:
             if root.left is None:
                 root.left = EmpNode(i)
                 break
