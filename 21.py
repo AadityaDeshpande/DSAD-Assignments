@@ -9,46 +9,92 @@ try:
     with open(inputFileName, 'r') as infile:
         lines: list = infile.readlines()
         lines: list = [line.strip() for line in lines if line.strip()]
-        transactions_list: list = [i for i in lines if i.isdigit()]
+        Employee_transactions_list: list = [int(i) for i in lines if i.isdigit()]
         actions_list: list = [i for i in lines if not i.isdigit()]
 except FileNotFoundError as e:
     print(f"Input file {inputFileName} is not present in the same directory \n{e}")
     exit(0)
 
-print(transactions_list)
-print(actions_list)
+# validation for no employees
+if not len(Employee_transactions_list):
+    print("Can't create a binary tree without any elements")
+    exit(0)
 
 # Construct a binary tree
 # Each node represents an employee
 # attctr represents the number of times employee swipped a card
 class EmpNode:
     def __init__(self, EmpId: int):
+        """ Parameterised constructor """
         self.EmpID: int = EmpId
         self.attctr: int = 1
         self.left = None
         self.right = None
 
-def construct_tree(transactions_list):
-    if not len(transactions_list):
-        print("No transactions found, can't create binary tree")
-        exit(0)
-    
-    root = EmpNode(transactions_list[0])
-    head = root
-    for i in transactions_list[1:]:
-        while True:
-            if root.left is None:
-                root.left = EmpNode(i)
-                break
-            elif root.right is None:
-                root.right = EmpNode(i)
-                break
-            
+    def insert(self, EmpId: int):
+        """ Insert the element in binary tree """
+        if EmpId == self.EmpID:
+            # same swipe so increment counter
+            self.attctr += 1
+        elif EmpId < self.EmpID:
+            # insert to the left of tree
+            if self.left is None:
+                self.left = EmpNode(EmpId)
+            else:
+                self.left.insert(EmpId)
+        elif EmpId > self.EmpID:
+            # insert to the right of tree
+            if self.right is None:
+                self.right = EmpNode(EmpId)
+            else:
+                self.right.insert(EmpId)
 
+    def get_status(self, Employee_dict: dict = {}, print_tree: bool = True):
+        """ Print the elements in tree recrsively and update the list of employees """
+        if self.left:
+            self.left.get_status(Employee_dict, print_tree)
+        if print_tree:
+            print("Employee ID:",self.EmpID, ", and attctr value :",self.attctr)
+        Employee_dict.update({self.EmpID:self.attctr})
+        if self.right:
+            self.right.get_status(Employee_dict, print_tree)
 
-    
-
-
+def searchEmployee(root: EmpNode, EmpID):
+    if root is None:
+        print(f"Employee id {EmpID} did not swipe today.")
+        return root
+    if root.EmpID == EmpID:
+        print(f"Employee id {root.EmpID} swiped {root.attctr} times today and is currently {'outside' if root.attctr % 2 == 0 else 'inside'} freezer room")
+        return root
+    if root.EmpID < EmpID:
+        return searchEmployee(root.right, EmpID)
+    if root.EmpID > EmpID:
+        return searchEmployee(root.left, EmpID)
 
 # Driver code
-construct_tree(transactions_list)
+# Construct a Tree
+# create a root node with first value
+root = EmpNode(Employee_transactions_list[0])
+
+# create a binary tree
+for EmpID in Employee_transactions_list[1:]:
+    root.insert(EmpID)
+
+# cache the employee status to improve performance
+Employee_status = {}
+root.get_status(Employee_status, False)
+
+for action in actions_list:
+    if 'inFreezer' in action:
+        # logic to get employees in the freezer
+        inside_freezer = 0
+        for k, v in Employee_status.items():
+            if v % 2 != 0:
+                inside_freezer += 1
+        print(f"Total number of employees recorded today: {len(Employee_status.keys())} {inside_freezer} employee(s) still inside freezer room")
+    if 'checkEmp' in action:
+        emp_to_search = action.split(':')[1].strip()
+        if emp_to_search.isdigit():
+            emp_to_search = int(emp_to_search)
+        searchEmployee(root, emp_to_search)
+    # TODO: for 'freqVisit: 3', 'range: 05:125'
