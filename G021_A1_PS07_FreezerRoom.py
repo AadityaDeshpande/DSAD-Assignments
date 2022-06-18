@@ -22,6 +22,8 @@ class FileWriter:
     def write_in_file(cls, content):
         cls.file.write(content + "\n")
 
+# Reading the Input and process it
+
 try:
     with open(inputFileName, 'r') as infile:
         lines: list = infile.readlines()
@@ -79,6 +81,7 @@ class EmpNode:
             self.right.get_status(Employee_dict, print_tree)
 
 def searchEmployee(root: EmpNode, EmpID):
+    """ Helper function that will be used for recursive  """
     if root is None:
         FileWriter.write_in_file(f"Employee id {EmpID} did not swipe today.")
         return root
@@ -90,54 +93,72 @@ def searchEmployee(root: EmpNode, EmpID):
     if root.EmpID > EmpID:
         return searchEmployee(root.left, EmpID)
 
-# Driver code
+def inFreezer(root: EmpNode):
+    # logic to get employees in the freezer
+    Employee_status = {}
+    root.get_status(Employee_status, False)
+    inside_freezer = 0
+    for k, v in Employee_status.items():
+        if v % 2 != 0:
+            inside_freezer += 1
+    FileWriter.write_in_file(f"Total number of employees recorded today: {len(Employee_status.keys())} {inside_freezer} employee(s) still inside freezer room")
+
+def checkEmp(root: EmpNode, action: str):
+    emp_to_search = action.split(':')[1].strip()
+    if emp_to_search.isdigit():
+        emp_to_search = int(emp_to_search)
+    searchEmployee(root, emp_to_search)
+
+def freqVisit(root: EmpNode, action: str):
+    frequency = action.split(':')[1].strip()
+    # logic to get employees frequency status
+    Employee_status = {}
+    root.get_status(Employee_status, False)
+    for k, v in Employee_status.items():
+        if int(frequency) <= v:
+            FileWriter.write_in_file(f"{k}, {v}")
+
+def rangeEmp(root: EmpNode, action: str):
+    lower_range = action.split(':')[1].strip()
+    upper_range = action.split(':')[2].strip()
+    # FileWriter.write_in_file(f"{lower_range}, {upper_range}")
+    FileWriter.write_in_file(f"Range: {lower_range} to {upper_range} Employee swipe:")
+    # logic to get employees frequency status
+    Employee_status = {}
+    root.get_status(Employee_status, False)
+
+    for k,v in Employee_status.items():
+        if k <= int(upper_range) and k >= int(lower_range):
+            FileWriter.write_in_file(f"{k}, {v}, {'out' if v % 2 == 0 else 'in'}")
+
+# Driver code / Main Code
 """
 Construct a Tree
 create a root node with first value
 """
 root = EmpNode(Employee_transactions_list[0])
 
-# create a binary tree
+# Create a binary tree
 for EmpID in Employee_transactions_list[1:]:
     root.insert(EmpID)
 
+root.get_status({}, False)
+
+# Finite states to drive the code
 for action in actions_list:
     if 'inFreezer' in action:
-        # logic to get employees in the freezer
-        Employee_status = {}
-        root.get_status(Employee_status, False)
-        inside_freezer = 0
-        for k, v in Employee_status.items():
-            if v % 2 != 0:
-                inside_freezer += 1
-        FileWriter.write_in_file(f"Total number of employees recorded today: {len(Employee_status.keys())} {inside_freezer} employee(s) still inside freezer room")
+        inFreezer(root)
     
     if 'checkEmp' in action:
-        emp_to_search = action.split(':')[1].strip()
-        if emp_to_search.isdigit():
-            emp_to_search = int(emp_to_search)
-        searchEmployee(root, emp_to_search)
+        checkEmp(root, action)
     
     if 'freqVisit' in action:
-        frequency = action.split(':')[1].strip()
-        # logic to get employees frequency status
-        Employee_status = {}
-        root.get_status(Employee_status, False)
-        for k, v in Employee_status.items():
-            if int(frequency) <= v:
-                FileWriter.write_in_file(f"{k}, {v}")
+        freqVisit(root, action)
     
     if 'range' in action:
-        lower_range = action.split(':')[1].strip()
-        upper_range = action.split(':')[2].strip()
-        # FileWriter.write_in_file(f"{lower_range}, {upper_range}")
-        FileWriter.write_in_file(f"Range: {lower_range} to {upper_range} Employee swipe:")
-        # logic to get employees frequency status
-        Employee_status = {}
-        root.get_status(Employee_status, False)
+        rangeEmp(root, action)
 
-        for k,v in Employee_status.items():
-            if k <= int(upper_range) and k >= int(lower_range):
-                FileWriter.write_in_file(f"{k}, {v}, {'out' if v % 2 == 0 else 'in'}")
-
-
+# cProfile.run('inFreezer(root)')
+# cProfile.run('checkEmp(root, action)')
+# cProfile.run('freqVisit(root, action)')
+# cProfile.run('rangeEmp(root, action)')
