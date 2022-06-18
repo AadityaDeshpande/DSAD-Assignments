@@ -1,5 +1,5 @@
 from sys import exit
-
+import cProfile
 """ 
 Reading the Input file inputPS07.txt
 Populate transaction_list to create binary tree
@@ -73,7 +73,7 @@ class EmpNode:
         if self.left:
             self.left.get_status(Employee_dict, print_tree)
         if print_tree:
-            FileWriter.write_in_file("Employee ID:",self.EmpID, ", and attctr value :",self.attctr)
+            print("Employee ID:",self.EmpID, ", and attctr value :",self.attctr)
         Employee_dict.update({self.EmpID:self.attctr})
         if self.right:
             self.right.get_status(Employee_dict, print_tree)
@@ -139,3 +139,5 @@ for action in actions_list:
         for k,v in Employee_status.items():
             if k <= int(upper_range) and k >= int(lower_range):
                 FileWriter.write_in_file(f"{k}, {v}, {'out' if v % 2 == 0 else 'in'}")
+
+
