@@ -142,7 +142,7 @@ root = EmpNode(Employee_transactions_list[0])
 for EmpID in Employee_transactions_list[1:]:
     root.insert(EmpID)
 
-root.get_status({}, False)
+root.get_status({}, True)
 
 # Finite states to drive the code
 for action in actions_list:
