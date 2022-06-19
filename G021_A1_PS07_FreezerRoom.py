@@ -29,12 +29,12 @@ try:
         Employee_transactions_list: list = [int(i) for i in lines if i.isdigit()]
         actions_list: list = [i for i in lines if not i.isdigit()]
 except FileNotFoundError as e:
-    FileWriter.write_in_file(f"Input file {inputFileName} is not present in the same directory \n{e}")
+    print(f"Input file {inputFileName} is not present in the same directory")
     exit(0)
 
 # validation for no employees
 if not len(Employee_transactions_list):
-    FileWriter.write_in_file("Can't create a binary tree without any elements")
+    print("Can't create a binary tree without any elements")
     exit(0)
 
 # Construct a binary tree
