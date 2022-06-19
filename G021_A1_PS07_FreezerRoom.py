@@ -1,5 +1,4 @@
 from sys import exit
-import cProfile
 """ 
 Reading the Input file inputPS07.txt
 Populate transaction_list to create binary tree
@@ -22,8 +21,7 @@ class FileWriter:
     def write_in_file(cls, content):
         cls.file.write(content + "\n")
 
-# Reading the Input and process it
-
+# Reading the Input and processing it
 try:
     with open(inputFileName, 'r') as infile:
         lines: list = infile.readlines()
@@ -73,23 +71,30 @@ class EmpNode:
     def get_status(self, Employee_dict: dict = {}, print_tree: bool = True):
         """ Print the elements in tree recrsively and update the list of employees """
         if self.left:
+            # move to left
             self.left.get_status(Employee_dict, print_tree)
         if print_tree:
             print("Employee ID:",self.EmpID, ", and attctr value :",self.attctr)
+        # get status of the root
         Employee_dict.update({self.EmpID:self.attctr})
         if self.right:
+            # move to right
             self.right.get_status(Employee_dict, print_tree)
 
 def searchEmployee(root: EmpNode, EmpID):
     """ Helper function that will be used for recursive  """
+    # condition if employee does not exists
     if root is None:
         FileWriter.write_in_file(f"Employee id {EmpID} did not swipe today.")
         return root
+    # condition if employee exists
     if root.EmpID == EmpID:
         FileWriter.write_in_file(f"Employee id {root.EmpID} swiped {root.attctr} times today and is currently {'outside' if root.attctr % 2 == 0 else 'inside'} freezer room")
         return root
+    # move to right subtree
     if root.EmpID < EmpID:
         return searchEmployee(root.right, EmpID)
+    # move to left subtree
     if root.EmpID > EmpID:
         return searchEmployee(root.left, EmpID)
 
@@ -157,8 +162,3 @@ for action in actions_list:
     
     if 'range' in action:
         rangeEmp(root, action)
-
-# cProfile.run('inFreezer(root)')
-# cProfile.run('checkEmp(root, action)')
-# cProfile.run('freqVisit(root, action)')
-# cProfile.run('rangeEmp(root, action)')
